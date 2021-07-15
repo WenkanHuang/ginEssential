@@ -27,7 +27,7 @@ func InitDB() *gorm.DB {
 		charset)
 	db, err := gorm.Open(driverName, args)
 	if err != nil {
-		panic("fail to connect databse,err:" + err.Error())
+		panic("fail to connect database,err:" + err.Error())
 	}
 	db.AutoMigrate(&model.User{})
 	DB = db

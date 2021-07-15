@@ -17,7 +17,7 @@ func Register(ctx *gin.Context) {
 	DB := common.GetDB()
 	var requestUser = model.User{}
 	//json.NewDecoder(ctx.Request.Body).Decode(&requestUser)
-	ctx.Bind(&requestUser)
+	ctx.ShouldBind(&requestUser)
 	//获取参数
 	name := requestUser.Name
 	telephone := requestUser.Telephone
@@ -39,7 +39,7 @@ func Register(ctx *gin.Context) {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "用户已存在")
 		return
 	}
-	hasePassowrd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hasePassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, "加密错误")
 		return
@@ -47,7 +47,7 @@ func Register(ctx *gin.Context) {
 	newUser := model.User{
 		Name:      name,
 		Telephone: telephone,
-		Password:  string(hasePassowrd),
+		Password:  string(hasePassword),
 	}
 	DB.Create(&newUser)
 	//发送token
@@ -84,8 +84,7 @@ func Login(c *gin.Context) {
 		return
 	}
 	//判断密码是否正确
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password));
-		err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		response.Response(c, http.StatusBadRequest, 400, nil, "密码错误")
 		//c.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": "密码错误"})
 		return
