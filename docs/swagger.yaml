@@ -1,0 +1,21 @@
+info:
+  contact: {}
+paths:
+  /print:
+    get:
+      description: This is a sample server Petstore server.
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"data":"name","msg":"ok"}'
+          schema:
+            type: string
+      summary: 打印测试功能
+swagger: "2.0"
