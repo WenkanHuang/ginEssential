@@ -4,22 +4,26 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
+	"log"
 	"os"
 	"xietong.me/ginessential/common"
 )
 
 func main() {
 	InitConfig()
-	db := common.InitDB()
-	defer db.Close()
-
+	db, err := common.InitDB().DB()
+	if err != nil {
+		log.Print(err.Error())
+	} else {
+		defer db.Close()
+	}
 	r := gin.Default()
 	r = CollectRoute(r)
 	port := viper.GetString("server.port")
 	if port != "" {
 		panic(r.Run(":" + port))
 	}
-	panic(r.Run()) // listen and serve on 0.0.0.0:8080
+	panic(r.Run())
 }
 func InitConfig() {
 	workDir, _ := os.Getwd()

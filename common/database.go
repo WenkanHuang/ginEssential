@@ -2,8 +2,9 @@ package common
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"xietong.me/ginessential/model"
 )
 
@@ -11,7 +12,6 @@ var DB *gorm.DB
 
 func InitDB() *gorm.DB {
 	fmt.Println(viper.GetString("datasource.driverName"))
-	driverName := viper.GetString("datasource.driverName")
 	host := viper.GetString("datasource.host")
 	port := viper.GetString("datasource.port")
 	database := viper.GetString("datasource.database")
@@ -25,7 +25,8 @@ func InitDB() *gorm.DB {
 		port,
 		database,
 		charset)
-	db, err := gorm.Open(driverName, args)
+
+	db, err := gorm.Open(mysql.Open(args), &gorm.Config{})
 	if err != nil {
 		panic("fail to connect database,err:" + err.Error())
 	}

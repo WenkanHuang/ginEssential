@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"xietong.me/ginessential/common"
@@ -57,7 +57,12 @@ func Register(ctx *gin.Context) {
 		log.Printf("token generate error:%v", err)
 		return
 	}
-
+	////修改用户信息
+	//func update(ctx *gin.Context) {
+	//	db := common.GetDB()
+	//	user, _ := ctx.Get("user")
+	//
+	//}
 	//返回结果
 	response.Success(ctx, gin.H{"token": token}, "注册成功")
 }
@@ -86,7 +91,6 @@ func Login(c *gin.Context) {
 	//判断密码是否正确
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		response.Response(c, http.StatusBadRequest, 400, nil, "密码错误")
-		//c.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": "密码错误"})
 		return
 	}
 
@@ -94,8 +98,6 @@ func Login(c *gin.Context) {
 	token, err := common.ReleaseToken(user)
 	if err != nil {
 		response.Response(c, http.StatusInternalServerError, 500, nil, "系统异常")
-		//c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "系统异常"})
-		//log.Printf("token generate error:%v", err)
 	}
 
 	//返回结果
@@ -106,6 +108,15 @@ func Info(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
 
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "data": gin.H{"user": dto.ToUserDto(user.(model.User))}})
+}
+
+//删除用户
+func Remove(ctx *gin.Context) {
+	db := common.GetDB()
+	user, _ := ctx.Get("user")
+	tel := user.(model.User).Telephone
+	err := db.Where("Telephone = ?", tel).Delete(&model.User{})
+	log.Print(err.Error)
 }
 
 func isTelephoneExist(db *gorm.DB, telephone string) bool {
