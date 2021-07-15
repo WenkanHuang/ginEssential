@@ -2,12 +2,17 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "github.com/swaggo/gin-swagger/example/basic/docs"
 	"xietong.me/ginessential/controller"
 	"xietong.me/ginessential/middleware"
 )
 
 func CollectRoute(r *gin.Engine) *gin.Engine {
 	r.Use(middleware.CORSMiddleware())
+	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	route := r.Group("/api/auth")
 	{
 		route.POST("/register", controller.Register)
@@ -15,7 +20,6 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 		route.GET("/info", middleware.AuthMiddleware(), controller.Info)
 		route.DELETE("/remove", middleware.AuthMiddleware(), controller.Remove)
 	}
-
 	return r
 }
 

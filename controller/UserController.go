@@ -13,6 +13,17 @@ import (
 	"xietong.me/ginessential/util"
 )
 
+// @Summary 注册
+// @title Swagger Example API
+// @version 0.0.1
+// @Tags 仓s库api
+// @description  This is a sample server Petstore server.
+// @BasePath /api/v1
+// @Host 127.0.0.1:8080
+// @Produce  json
+// @Param name body int true "Name"
+// @Success 200 {string} json "{"code":200,"data":"name","msg":"ok"}"
+// @Router /print [get]
 func Register(ctx *gin.Context) {
 	DB := common.GetDB()
 	var requestUser = model.User{}
@@ -67,6 +78,16 @@ func Register(ctx *gin.Context) {
 	response.Success(ctx, gin.H{"token": token}, "注册成功")
 }
 
+// @Summary 打印测试功能
+// @title Swagger Example API
+// @version 0.0.1
+// @description This is a sample server Petstore server.
+// @BasePath /api/v1
+// @Host 127.0.0.1:8080
+// @Produce json
+// @Param name query string true "Name"
+// @Success 200 {string} json "{"code":200,"data":"name","msg":"ok"}"
+// @Router /print [get]
 func Login(c *gin.Context) {
 	db := common.GetDB()
 	//获取参数
