@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "github.com/swaggo/gin-swagger/example/basic/docs"
+	//_ "github.com/swaggo/gin-swagger/example/basic/docs"
 	"xietong.me/ginessential/controller"
 	"xietong.me/ginessential/middleware"
 )
@@ -19,6 +19,7 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 		route.POST("/login", controller.Login)
 		route.GET("/info", middleware.AuthMiddleware(), controller.Info)
 		route.DELETE("/remove", middleware.AuthMiddleware(), controller.Remove)
+		route.PUT("/update", middleware.AuthMiddleware(), controller.UpdateByUser)
 	}
 	return r
 }

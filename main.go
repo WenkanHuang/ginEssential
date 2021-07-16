@@ -1,21 +1,28 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	"log"
-	"os"
 	"xietong.me/ginessential/common"
+	"xietong.me/ginessential/config"
+	_ "xietong.me/ginessential/docs"
 )
 
 func main() {
-	InitConfig()
+	config.InitConfig()
 	db, err := common.InitDB().DB()
 	if err != nil {
 		log.Print(err.Error())
 	} else {
-		defer db.Close()
+		defer func(db *sql.DB) {
+			err := db.Close()
+			if err != nil {
+				log.Print(err.Error())
+			}
+		}(db)
 	}
 	r := gin.Default()
 	r = CollectRoute(r)
@@ -24,14 +31,4 @@ func main() {
 		panic(r.Run(":" + port))
 	}
 	panic(r.Run())
-}
-func InitConfig() {
-	workDir, _ := os.Getwd()
-	viper.SetConfigName("application")
-	viper.SetConfigType("yml")
-	viper.AddConfigPath(workDir + "/config")
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
 }

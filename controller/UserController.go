@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"xietong.me/ginessential/common"
@@ -13,31 +12,17 @@ import (
 	"xietong.me/ginessential/util"
 )
 
-// @Summary 注册
-// @title Swagger Example API
-// @version 0.0.1
-// @Tags 仓s库api
-// @description  This is a sample server Petstore server.
-// @BasePath /api/v1
-// @Host 127.0.0.1:8080
-// @Produce  json
-// @Param name body int true "Name"
-// @Success 200 {string} json "{"code":200,"data":"name","msg":"ok"}"
-// @Router /print [get]
 func Register(ctx *gin.Context) {
 	DB := common.GetDB()
 	var requestUser = model.User{}
-	//json.NewDecoder(ctx.Request.Body).Decode(&requestUser)
-	ctx.ShouldBind(&requestUser)
+	err := ctx.ShouldBind(&requestUser)
+	if err != nil {
+		log.Println("Bind Error:" + err.Error())
+	}
 	//获取参数
 	name := requestUser.Name
-	telephone := requestUser.Telephone
+	//telephone := requestUser.Telephone
 	password := requestUser.Password
-	//数据验证
-	if len(telephone) != 11 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "手机号必须为11位")
-		return
-	}
 	if len(password) < 6 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "密码不能少于6位")
 		return
@@ -46,19 +31,14 @@ func Register(ctx *gin.Context) {
 	if len(name) == 0 {
 		name = util.RandomString(10)
 	}
-	if isTelephoneExist(DB, telephone) {
-		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "用户已存在")
-		return
-	}
 	hasePassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, "加密错误")
 		return
 	}
 	newUser := model.User{
-		Name:      name,
-		Telephone: telephone,
-		Password:  string(hasePassword),
+		Name:     name,
+		Password: string(hasePassword),
 	}
 	DB.Create(&newUser)
 	//发送token
@@ -68,26 +48,10 @@ func Register(ctx *gin.Context) {
 		log.Printf("token generate error:%v", err)
 		return
 	}
-	////修改用户信息
-	//func update(ctx *gin.Context) {
-	//	db := common.GetDB()
-	//	user, _ := ctx.Get("user")
-	//
-	//}
 	//返回结果
 	response.Success(ctx, gin.H{"token": token}, "注册成功")
 }
 
-// @Summary 打印测试功能
-// @title Swagger Example API
-// @version 0.0.1
-// @description This is a sample server Petstore server.
-// @BasePath /api/v1
-// @Host 127.0.0.1:8080
-// @Produce json
-// @Param name query string true "Name"
-// @Success 200 {string} json "{"code":200,"data":"name","msg":"ok"}"
-// @Router /print [get]
 func Login(c *gin.Context) {
 	db := common.GetDB()
 	//获取参数
@@ -105,7 +69,7 @@ func Login(c *gin.Context) {
 	//判断手机号是否存在
 	var user model.User
 	db.Where("telephone=?", telephone).First(&user)
-	if user.ID == 0 {
+	if user.UserId == 0 {
 		response.Response(c, http.StatusUnprocessableEntity, 422, nil, "密码不能少于6位")
 		return
 	}
@@ -131,20 +95,28 @@ func Info(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "data": gin.H{"user": dto.ToUserDto(user.(model.User))}})
 }
 
-//删除用户
 func Remove(ctx *gin.Context) {
-	db := common.GetDB()
-	user, _ := ctx.Get("user")
-	tel := user.(model.User).Telephone
-	err := db.Where("Telephone = ?", tel).Delete(&model.User{})
-	log.Print(err.Error)
+	//db := common.GetDB()
+	//user, _ := ctx.Get("user")
+	//tel := user.(model.User).Telephone
+	//err := db.Where("Telephone = ?", tel).Delete(&model.User{})
+	//log.Print(err.Error)
 }
 
-func isTelephoneExist(db *gorm.DB, telephone string) bool {
-	var user model.User
-	db.Where("telephone=?", telephone).First(&user)
-	if user.ID != 0 {
-		return true
+func UpdateByUser(ctx *gin.Context) {
+	var requestUser = model.User{}
+	//originUser, _ := ctx.Get("user")
+	err := ctx.ShouldBind(&requestUser)
+	if err != nil {
+		log.Println(err.Error())
+		response.Fail(ctx, gin.H{"name": "error"}, "参数错误")
 	}
-	return false
+	name := requestUser.Name
+	password := requestUser.Password
+	updateUser := model.User{
+		Name:     name,
+		Password: password,
+	}
+	db := common.GetDB()
+	db.Save(&updateUser)
 }

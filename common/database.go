@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"log"
 	"xietong.me/ginessential/model"
 )
 
@@ -30,7 +31,11 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		panic("fail to connect database,err:" + err.Error())
 	}
-	db.AutoMigrate(&model.User{})
+	s := db.AutoMigrate(&model.User{}, &model.Group{}, &model.Todo{})
+	if s != nil {
+		log.Print(s.Error())
+		return nil
+	}
 	DB = db
 	return db
 }

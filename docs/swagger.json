@@ -4,28 +4,40 @@
         "contact": {}
     },
     "paths": {
-        "/print": {
-            "get": {
-                "description": "This is a sample server Petstore server.",
+        "/api/auth/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "打印测试功能",
+                "summary": "注册",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Name",
+                        "description": "userID",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "telephone",
+                        "name": "telephone",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
                         "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\":200,\"data\":\"name\",\"msg\":\"ok\"}",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": ""
                     }
                 }
             }

@@ -14,11 +14,11 @@ type Claims struct {
 }
 
 func ReleaseToken(user model.User) (string, error) {
-	expireTime := time.Now().Add(7 * 24 * time.Hour)
+	expireTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
-		UserId: user.ID,
+		UserId: user.UserId,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(), //过期时间
+			ExpiresAt: expireTime.Unix(),
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    "xietong.me",
 			Subject:   "user token",

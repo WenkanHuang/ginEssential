@@ -12,14 +12,15 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//获取authorization header
 		tokenString := c.GetHeader("Authorization")
+		prefex := "Todo"
 		//validate token
-		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer") {
+		if tokenString == "" || !strings.HasPrefix(tokenString, prefex) {
 			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
 			c.Abort()
 			return
 		}
 
-		tokenString = tokenString[7:]
+		tokenString = tokenString[len(prefex)+1:]
 		token, claims, err := common.ParseToken(tokenString)
 		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
@@ -34,7 +35,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		DB.First(&user, userId)
 
 		//用户不存在
-		if user.ID == 0 {
+		if user.UserId == 0 {
 			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
 			c.Abort()
 			return
